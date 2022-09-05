@@ -81,6 +81,7 @@ public class DbWorker implements DbWorkerItf {
             }
 
         } catch (SQLException e) {
+             throw new MyDBException(SystemLib.getFullMethodName(), e.getMessage());
         }
 
         return listePersonnes;
@@ -89,16 +90,19 @@ public class DbWorker implements DbWorkerItf {
     @Override
     public Personne precedentPersonne() throws MyDBException {
         List<Personne> pers = lirePersonnes();
-        try {
+        Personne p = new Personne();
             if (index > 0) {
                 index -= 1;
-                return pers.get(index);
+                if(pers.get(index) != null ){
+                    p = pers.get(index);
+                }
             } else {
-                return pers.get(index);
+                if (pers.get(index) != null ) {
+                    p = pers.get(index);
+                }
+                
             }
-        } catch (Exception e) {
-        }
-        return null;
+        return p;
     }
 
     @Override
