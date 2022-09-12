@@ -27,9 +27,9 @@ public class DbWorker implements DbWorkerItf {
         final String user = "root";
         final String password = "emf123";
 
-        System.out.println("url:" + url_remote);
+        System.out.println("url:" + url_local);
         try {
-            dbConnexion = DriverManager.getConnection(url_remote, user, password);
+            dbConnexion = DriverManager.getConnection(url_local, user, password);
         } catch (SQLException ex) {
             throw new MyDBException(SystemLib.getFullMethodName(), ex.getMessage());
         }
@@ -71,23 +71,46 @@ public class DbWorker implements DbWorkerItf {
     }
 
     public List<Personne> lirePersonnes() throws MyDBException {
-        listePersonnes = new ArrayList<>();
-        
+        listePersonnes = new ArrayList<Personne>();
+        try {
+            Statement st = dbConnexion.createStatement();
+            ResultSet rs = st.executeQuery("select Nom, Prenom from t_personne");
+            while (rs.next()) {
+                Personne current = new Personne(rs.getString("Nom"), rs.getString("Prenom"));
+                listePersonnes.add(current);
+            }
+
+        } catch (SQLException e) {
+            throw new MyDBException(SystemLib.getFullMethodName(), e.getMessage());
+        }
+
         return listePersonnes;
     }
 
     @Override
     public Personne precedentPersonne() throws MyDBException {
-
-        return null;
-
+        List<Personne> pers = lirePersonnes();
+        Personne p = new Personne();
+        if (index > 0) {
+            index -= 1;
+        }
+        p = pers.get(index);
+        return p;
     }
 
     @Override
     public Personne suivantPersonne() throws MyDBException {
+        List<Personne> pers = lirePersonnes();
+        Personne p = null;
+        try {
+            if (index < pers.size() - 1) {
+                index += 1;
+                p = pers.get(index);
 
-        return null;
-
+            }
+        } catch (Exception e) {
+        }
+        return p;
     }
 
 }
